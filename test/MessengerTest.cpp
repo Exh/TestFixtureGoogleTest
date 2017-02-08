@@ -13,9 +13,19 @@ protected:
     }
 
     static UserSharedPtr createMe() {
-        return createUser(createMyEmail(), Date("1", "may", "1980"));
+        return createUser(createMyEmail(), Date(1, 6, 1980));
     }
 
+    static UserSharedPtr createAlex() {
+        return createUser(createAlexEmail(), Date(10, 7, 1990));
+    }
+
+    static UserSharedPtr createTim() {
+        return createUser(createTimEmail(), Date(27, 3, 1987));
+    }
+
+    static std::string createAlexEmail() { return "alex@email.com"; }
+    static std::string createTimEmail() { return "tim@email.com"; }
     static std::string createMyEmail() { return "my@email.com"; }
 
     static UserSharedPtr createUser(const std::string& name, const Date& date) {
@@ -25,18 +35,11 @@ protected:
 
 // Могу отправить сообщение любому человеку из списка контактов
 TEST_F(MessengerTest, ICanToSendMessegeToAnyoneInMyContactList) {
-
-    std::string alex_email { "alex@email.com"};
-    std::string tim_email { "tim@email.com"};
-    std::string my_email = MessengerTest::createMyEmail();
-
+    std::string tim_email  = MessengerTest::createTimEmail();
     UserSharedPtr me = MessengerTest::createMe();
-    UserSharedPtr alex = MessengerTest::createUser(alex_email, Date("10", "july", "1990"));
-    UserSharedPtr tim = std::make_shared<User>(tim_email, Date("27", "march", "1987"));
+    UserSharedPtr tim = MessengerTest::createTim();
 
-    me->addContact(alex->getMyContact());
     me->addContact(tim->getMyContact());
-
     me->sendMessege(tim_email, "Hello Tim!!!");
 
     std::string expected =  + "You wrote: Hello Tim!!!";
@@ -46,14 +49,10 @@ TEST_F(MessengerTest, ICanToSendMessegeToAnyoneInMyContactList) {
 
 //Могу получать сообщения от других пользоватлей
 TEST_F(MessengerTest, ICanToRecieveMessegeFromAnyOne) {
-
-    std::string alex_email { "alex@email.com"};
-    std::string tim_email { "tim@email.com"};
-    std::string my_email { "my@email.com" };
-
-    UserSharedPtr me = std::make_shared<User>(my_email, Date("1", "may", "1980"));
-    UserSharedPtr alex = std::make_shared<User>(alex_email, Date("10", "july", "1990"));
-    UserSharedPtr tim = std::make_shared<User>(tim_email, Date("27", "march", "1987"));
+    std::string tim_email  = MessengerTest::createTimEmail();
+    std::string my_email   = MessengerTest::createMyEmail();
+    UserSharedPtr me = MessengerTest::createMe();
+    UserSharedPtr tim = MessengerTest::createTim();
 
     tim->addContact(me->getMyContact());
 

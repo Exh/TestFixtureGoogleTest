@@ -3,6 +3,7 @@
 #include <ctime>
 #include <functional>
 #include <sstream>
+#include <algorithm>
 
 Contact::Contact(std::string email, Date birth_day):
     m_email(email), m_birth_day(birth_day)
@@ -20,7 +21,7 @@ void User::addContact(ContactWeakPtr newContact)
     hiddenAddContact(newContact);
 
     auto newCon  = newContact.lock();
-    size_t hash = generateHash(getEmail() + newCon->getEmail() + getCurrentTime());
+    size_t hash = generateHash(getEmail() + newCon->getEmail() + getCurrentTimeStr());
 
     createChatRoom(newContact, hash, true);
 }
@@ -54,14 +55,22 @@ size_t User::generateHash(const std::string& s) const
 }
 
 
-std::string User::getCurrentTime() const
+std::string User::getCurrentTimeStr() const
 {
-    auto t = std::time(nullptr);
     time_t seconds;
     time(&seconds);
     std::stringstream ss;
     ss << seconds;
     return ss.str();
+}
+
+Date User::getCurrentDate() const
+{
+    time_t seconds;
+    time(&seconds);
+    struct tm * now = localtime(&seconds);
+
+    return Date(now->tm_mday, now->tm_mon + 1, now->tm_year + 1900);
 }
 
 void User::createP2PChat(uint64_t id, ContactWeakPtr creator)
@@ -96,6 +105,25 @@ void User::clearContacts()
     m_p2p_chats_ids.clear();
 }
 
+std::vector<std::string> User::checkContactsBirthDayToDay() const
+{
+    std::vector<std::string> birth_day_list;
+    Date today = getCurrentDate();
+    std::for_each(std::begin(m_contacts), std::end(m_contacts),
+        [&] (const std::unordered_map<std::string, ContactWeakPtr>::value_type& p)
+        {
+             auto contact = p.second.lock();
+             auto birth_day = contact->getBirthDay();
+             if ((birth_day.getDay() == today.getDay()) &&
+                 (birth_day.getMonth() == today.getMonth()))
+             {
+                birth_day_list.push_back(p.first);
+             }
+        });
+
+    return birth_day_list;
+}
+
 P2PChat::P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator, bool initiated):
     IChat(id),
     m_collocutor(collocutor)
@@ -122,4 +150,11 @@ void P2PChat::recieveMessege(const std::string &text)
     if (collocutor) {
         m_text += collocutor->getEmail() + " wrote: " + text;
     }
+}
+
+
+Date::Date(int day, int month, int year):
+    m_day(day), m_month(month), m_year(year)
+{
+
 }

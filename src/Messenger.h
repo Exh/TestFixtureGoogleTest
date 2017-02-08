@@ -21,17 +21,14 @@
 class Date
 {
 public:
-    Date(std::string day, std::string month, std::string year):
-        day(day), month(month), year(year)
-    { }
-
-    std::string getDay() const { return day; }
-    std::string getMonth() const { return month; }
-    std::string getYear() const { return year; }
+    Date(int day, int month, int year);
+    int getDay()   const { return   m_day; }
+    int getMonth() const { return m_month; }
+    int getYear()  const { return  m_year; }
 private:
-    std::string day;
-    std::string month;
-    std::string year;
+    int m_day;
+    int m_month;
+    int m_year;
 };
 
 
@@ -80,10 +77,6 @@ private:
 
 typedef std::shared_ptr<P2PChat> P2PChatSharedPtr;
 
-//class ConferenceChat
-//{
-//    std::vector<ContactWeakPtr> m_contacts;
-//};
 
 class User: public Contact
 {
@@ -92,7 +85,8 @@ public:
     ContactWeakPtr getMyContact() { ContactSharedPtr me = shared_from_this(); return me; }
     void addContact(ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
-    std::string getCurrentTime() const;
+    std::string getCurrentTimeStr() const;
+    Date getCurrentDate() const;
 
     void createP2PChat(uint64_t id, ContactWeakPtr creator);
     void recieveMessege(uint64_t id, const std::string& text);
@@ -100,6 +94,7 @@ public:
     std::string readP2PChat(std::string& contact_email);
 
     void clearContacts();
+    std::vector<std::string> checkContactsBirthDayToDay() const;
 private:
     size_t generateHash(const std::string& s) const;
     void createChatRoom(ContactWeakPtr newContact, size_t hash, bool initiated = false);
