@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <vector>
 
 /*
 Мессенжер (на примере WhatsApp, Viber, Telegram)
@@ -46,10 +47,33 @@ private:
 typedef std::shared_ptr<Contact> ContactSharedPtr;
 typedef std::weak_ptr<Contact> ContactWeakPtr;
 
-class ChatRoom
+class IChat
 {
-
+public:
+    IChat(uint64_t id):m_id(id) { }
+private:
+    std::string m_chat_text;
+    uint64_t m_id;
 };
+
+class P2PChat: public IChat
+{
+public:
+    P2PChat(ContactWeakPtr collocutor, uint64_t id):
+        IChat(id),
+        m_collocutor(collocutor)
+    {
+
+    }
+private:
+    ContactWeakPtr m_collocutor;
+};
+
+typedef std::shared_ptr<P2PChat> P2PChatSharedPtr;
+//class ConferenceChat
+//{
+//    std::vector<ContactWeakPtr> m_contacts;
+//};
 
 class User
 {
@@ -58,9 +82,12 @@ public:
     ContactWeakPtr getMyContact() const { return m_my_contact; }
     void addContact(ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
+    std::string getCurrentTime();
 private:
-    std::unordered_map<std::string, ContactWeakPtr> m_contacts;   // email,
-    ContactSharedPtr                                m_my_contact; //
+
+    std::unordered_map<std::string, ContactWeakPtr>         m_contacts;   // email,
+    ContactSharedPtr                                        m_my_contact; //
+    std::unordered_map<std::string, P2PChatSharedPtr>       m_p2p_chats;
 };
 
 typedef std::shared_ptr<User> UserSharedPtr;
