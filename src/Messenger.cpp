@@ -66,3 +66,8 @@ void P2PChat::sendMessege(const std::string &text)
     if (collocutor)
         collocutor->recieveMessege(m_id, text);
 }
+
+void P2PChat::recieveMessege(const std::string &text)
+{
+    m_text.append(text.begin(), text.end());
+}

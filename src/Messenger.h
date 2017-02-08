@@ -60,9 +60,9 @@ class IChat
 {
 public:
     IChat(uint64_t id):m_id(id) { }
-    std::string getText() const { return m_chat_text; }
+    std::string getText() const { return m_text; }
 protected:
-    std::string m_chat_text;
+    std::string m_text;
     uint64_t m_id;
 };
 
@@ -80,7 +80,7 @@ public:
         }
     }
     void sendMessege(const std::string& text);
-
+    void recieveMessege(const std::string& text);
 private:
     ContactWeakPtr m_collocutor;
 };
