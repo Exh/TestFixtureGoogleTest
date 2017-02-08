@@ -12,7 +12,15 @@ protected:
 
     }
 
+    static UserSharedPtr createMe() {
+        return createUser(createMyEmail(), Date("1", "may", "1980"));
+    }
 
+    static std::string createMyEmail() { return "my@email.com"; }
+
+    static UserSharedPtr createUser(const std::string& name, const Date& date) {
+        return std::make_shared<User>(name, date);
+    }
 };
 
 // Могу отправить сообщение любому человеку из списка контактов
@@ -20,10 +28,10 @@ TEST_F(MessengerTest, ICanToSendMessegeToAnyoneInMyContactList) {
 
     std::string alex_email { "alex@email.com"};
     std::string tim_email { "tim@email.com"};
-    std::string my_email { "my@email.com" };
+    std::string my_email = MessengerTest::createMyEmail();
 
-    UserSharedPtr me = std::make_shared<User>(my_email, Date("1", "may", "1980"));
-    UserSharedPtr alex = std::make_shared<User>(alex_email, Date("10", "july", "1990"));
+    UserSharedPtr me = MessengerTest::createMe();
+    UserSharedPtr alex = MessengerTest::createUser(alex_email, Date("10", "july", "1990"));
     UserSharedPtr tim = std::make_shared<User>(tim_email, Date("27", "march", "1987"));
 
     me->addContact(alex->getMyContact());
