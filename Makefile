@@ -17,5 +17,5 @@ $(OBJS_TEST):
 	$(CXX) $(CXXFLAGS_TEST) -c $(CPP_TEST) -o $(OBJS_TEST) $(INCS)
 
 clean:
-	rm *.o testAll test/*.o testAll.xml
+	rm ./src/*.o testAll ./test/*.o testAll.xml
 
