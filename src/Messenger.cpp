@@ -89,6 +89,13 @@ std::string User::readP2PChat(std::string &contact_email)
     return "";
 }
 
+void User::clearContacts()
+{
+    m_contacts.clear();
+    m_p2p_chats.clear();
+    m_p2p_chats_ids.clear();
+}
+
 P2PChat::P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator, bool initiated):
     IChat(id),
     m_collocutor(collocutor)

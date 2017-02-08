@@ -98,6 +98,8 @@ public:
     void recieveMessege(uint64_t id, const std::string& text);
 
     std::string readP2PChat(std::string& contact_email);
+
+    void clearContacts();
 private:
     size_t generateHash(const std::string& s) const;
     void createChatRoom(ContactWeakPtr newContact, size_t hash, bool initiated = false);
