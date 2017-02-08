@@ -18,6 +18,7 @@
 
 class Date
 {
+public:
     Date(std::string day, std::string month, std::string year):
         day(day), month(month), year(year)
     { }
@@ -34,13 +35,16 @@ private:
 class Contact
 {
 public:
-    Contact(std::string email, Date birth_date);
+    Contact(std::string email, Date birth_day);
+    std::string getEmail() const { return m_email; }
+    Date        getBirthDay() const { return m_birth_day; }
 private:
     std::string m_email;
-    Date        m_birth_date;
+    Date        m_birth_day;
 };
 
 typedef std::shared_ptr<Contact> ContactSharedPtr;
+typedef std::weak_ptr<Contact> ContactWeakPtr;
 
 class ChatRoom
 {
@@ -50,10 +54,13 @@ class ChatRoom
 class User
 {
 public:
-    User(std::string email, const Date& birth_date);
+    User(std::string email, const Date& birth_day);
+    ContactWeakPtr getMyContact() const { return m_my_contact; }
+    void addContact(ContactWeakPtr newContact);
+    void sendMessege(const std::string& reciever, const std::string& text);
 private:
-    std::unordered_map<std::string, ContactSharedPtr> m_contacts;   // email,
-    ContactSharedPtr                                  m_my_contact; //
+    std::unordered_map<std::string, ContactWeakPtr> m_contacts;   // email,
+    ContactSharedPtr                                m_my_contact; //
 };
 
 typedef std::shared_ptr<User> UserSharedPtr;
