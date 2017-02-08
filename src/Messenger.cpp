@@ -118,7 +118,11 @@ std::vector<std::string> User::checkContactsBirthDayToDay() const
              if ((birth_day.getDay() == today.getDay()) &&
                  (birth_day.getMonth() == today.getMonth()))
              {
-                birth_day_list.push_back(p.first);
+
+                auto iter = m_p2p_chats.find(p.first);
+                if (iter != m_p2p_chats.end()) {
+                    iter->second->systemMessage("Today is " + p.first + " birthday!!!\nDo you wanna send a greeting card?\n");
+                }
              }
         });
 
@@ -151,6 +155,11 @@ void P2PChat::recieveMessege(const std::string &text)
     if (collocutor) {
         m_text += collocutor->getEmail() + " wrote: " + text;
     }
+}
+
+void P2PChat::systemMessage(const std::string &text)
+{
+    m_text += text;
 }
 
 

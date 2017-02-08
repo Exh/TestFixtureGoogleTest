@@ -72,6 +72,7 @@ public:
     P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator, bool initiated = false);
     void sendMessege(const std::string& text);
     void recieveMessege(const std::string& text);
+    void systemMessage(const std::string& text);
 private:
     ContactWeakPtr m_collocutor;
 };

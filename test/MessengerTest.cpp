@@ -78,7 +78,6 @@ TEST_F(MessengerTest, ICanToRecieveMessegeFromAnyOne) {
     UserSharedPtr tim = MessengerTest::getTim();
 
     tim->addContact(me->getMyContact());
-
     tim->sendMessege(my_email, "Was Up?");
 
     std::string expected = tim_email + " wrote: Was Up?";
@@ -86,22 +85,21 @@ TEST_F(MessengerTest, ICanToRecieveMessegeFromAnyOne) {
     EXPECT_EQ(expected, result);
 }
 
-// Если у моего собеседника день рождения, месенжер предлагает отправить ему картинку с поздравлением или стикер
-TEST_F(MessengerTest, ICanToRecieveListAllMyContactsWhoHasBirthDayToday) {
+TEST_F(MessengerTest, IGetMessegeFromTimTodayIsHimBirthDayOpenChatISeeOfferToSendHimGreetingCard) {
     std::string tim_email  = MessengerTest::getTimEmail();
     std::string my_email   = MessengerTest::getMyEmail();
     Date today(18, 2, 2017);
     Date tim_birth(18, 2, 1987);
     UserSharedPtr me = MessengerTest::createUserForTestDate(my_email, Date(2, 2, 1970), today);
     UserSharedPtr tim = MessengerTest::createUser(tim_email, tim_birth);
+
     me->addContact(tim->getMyContact());
+    tim->sendMessege(my_email, "wassup dude?\n");
 
-//    Date dm = me->getCurrentDate();
-//    std::cout << "My date: " << dm.getDay() << " " << dm.getMonth() << " " << dm.getYear() << std::endl;
-//    Date dt = tim->getCurrentDate();
-//    std::cout << "Tim date: " << dt.getDay() << " " << dt.getMonth() << " " << dt.getYear() << std::endl;
+    me->checkContactsBirthDayToDay();
 
-    bool expected = true;
-    bool result = !me->checkContactsBirthDayToDay().empty();
+    std::string expected = tim_email + " wrote: wassup dude?\nToday is " + tim_email + " birthday!!!\nDo you wanna send a greeting card?\n";
+    std::string result = me->readP2PChat(tim_email);
+    std::cout << result;
     EXPECT_EQ(expected, result);
 }
