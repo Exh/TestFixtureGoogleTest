@@ -31,7 +31,7 @@ TEST_F(MessengerTest, ICanToSendMessegeToAnyoneInMyContactList) {
 
     me->sendMessege(tim_email, "Hello Tim!!!");
 
-    std::cout << me->readP2PChat(tim_email);
-    std::cout << tim->readP2PChat(my_email);
-    //EXPECT_EQ(11, Addition::twoValues(5,6));
+    std::string expected { "my@email.com wrote: Hello Tim!!!" };
+    std::string result { tim->readP2PChat(my_email) };
+    EXPECT_EQ(expected, result);
 }
