@@ -20,14 +20,20 @@ void User::addContact(ContactWeakPtr newContact)
     auto newCon  = newContact.lock();
     m_contacts[newCon->getEmail()] = newContact;
 
-
-    m_p2p_chats[newCon->getEmail()] = std::make_shared<P2PChat>(newContact, generateHash(), getMyContact());
+    createChatRoom(newContact, generateHash());
+ // m_p2p_chats[newCon->getEmail()] = std::make_shared<P2PChat>(newContact, generateHash(), getMyContact());
 }
 
 void User::sendMessege(const std::string &reciever, const std::string &text)
 {
     auto chat = m_p2p_chats[reciever];
     chat->sendMessege(text);
+}
+
+void User::createChatRoom(ContactWeakPtr newContact, size_t hash)
+{
+    auto newCon  = newContact.lock();
+    m_p2p_chats[newCon->getEmail()] = std::make_shared<P2PChat>(newContact, hash, getMyContact());
 }
 
 size_t User::generateHash() const

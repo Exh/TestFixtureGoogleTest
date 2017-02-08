@@ -108,6 +108,7 @@ public:
     std::string readP2PChat(std::string& contact_email);
 private:
     size_t generateHash() const;
+    void createChatRoom(ContactWeakPtr newContact, size_t hash);
     std::unordered_map<std::string, ContactWeakPtr>         m_contacts;   // email,
     std::unordered_map<std::string, P2PChatSharedPtr>       m_p2p_chats;
 };
