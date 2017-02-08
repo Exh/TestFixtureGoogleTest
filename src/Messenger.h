@@ -99,14 +99,15 @@ public:
     ContactWeakPtr getMyContact() { ContactSharedPtr me = shared_from_this(); return me; }
     void addContact(ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
-    std::string getCurrentTime();
+    std::string getCurrentTime() const;
 
     void createP2PChat(uint64_t id, ContactWeakPtr creator);
     void recieveMessege(uint64_t id, const std::string& text);
 
     std::string readChat(uint64_t id) const;
+    std::string readP2PChat(std::string& contact_email);
 private:
-
+    size_t generateHash() const;
     std::unordered_map<std::string, ContactWeakPtr>         m_contacts;   // email,
     std::unordered_map<std::string, P2PChatSharedPtr>       m_p2p_chats;
 };
