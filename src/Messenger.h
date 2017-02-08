@@ -44,6 +44,8 @@ public:
 
     virtual void createP2PChat(uint64_t id, ContactWeakPtr creator) = 0;
     virtual void recieveMessege(uint64_t id, const std::string& text) = 0;
+    virtual ~Contact() { }
+
 private:
     std::string m_email;
     Date        m_birth_day;
@@ -86,7 +88,7 @@ public:
     void addContact(ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
     std::string getCurrentTimeStr() const;
-    Date getCurrentDate() const;
+    virtual Date getCurrentDate() const;
 
     void createP2PChat(uint64_t id, ContactWeakPtr creator);
     void recieveMessege(uint64_t id, const std::string& text);

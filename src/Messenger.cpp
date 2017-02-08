@@ -114,6 +114,7 @@ std::vector<std::string> User::checkContactsBirthDayToDay() const
         {
              auto contact = p.second.lock();
              auto birth_day = contact->getBirthDay();
+
              if ((birth_day.getDay() == today.getDay()) &&
                  (birth_day.getMonth() == today.getMonth()))
              {
