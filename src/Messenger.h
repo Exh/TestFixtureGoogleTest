@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <unordered_map>
+#include <memory>
+#include <string>
 
 /*
 Мессенжер (на примере WhatsApp, Viber, Telegram)
@@ -31,10 +33,14 @@ private:
 
 class Contact
 {
+public:
+    Contact(std::string email, Date birth_date);
 private:
-    std::uint64_t m_id;
-    Date m_date;
+    std::string m_email;
+    Date        m_birth_date;
 };
+
+typedef std::shared_ptr<Contact> ContactSharedPtr;
 
 class ChatRoom
 {
@@ -43,13 +49,14 @@ class ChatRoom
 
 class User
 {
+public:
+    User(std::string email, const Date& birth_date);
 private:
-    std::unordered_map<Contact> m_contacts;
-    Contact my;
-
-
+    std::unordered_map<std::string, ContactSharedPtr> m_contacts;   // email,
+    ContactSharedPtr                                  m_my_contact; //
 };
 
+typedef std::shared_ptr<User> UserCharedPtr;
 
 
 
