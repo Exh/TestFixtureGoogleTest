@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 /*
 Мессенжер (на примере WhatsApp, Viber, Telegram)
@@ -69,21 +70,13 @@ protected:
 class P2PChat: public IChat
 {
 public:
-    P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator):
-        IChat(id),
-        m_collocutor(collocutor)
-    {
-        auto col =  m_collocutor.lock();
-        if (col)
-        {
-            col->createP2PChat(m_id, creator);
-        }
-    }
+    P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator, bool initiated = false);
     void sendMessege(const std::string& text);
     void recieveMessege(const std::string& text);
 private:
     ContactWeakPtr m_collocutor;
 };
+
 
 typedef std::shared_ptr<P2PChat> P2PChatSharedPtr;
 
@@ -104,13 +97,14 @@ public:
     void createP2PChat(uint64_t id, ContactWeakPtr creator);
     void recieveMessege(uint64_t id, const std::string& text);
 
-    std::string readChat(uint64_t id) const;
     std::string readP2PChat(std::string& contact_email);
 private:
-    size_t generateHash() const;
-    void createChatRoom(ContactWeakPtr newContact, size_t hash);
+    size_t generateHash(const std::string& s) const;
+    void createChatRoom(ContactWeakPtr newContact, size_t hash, bool initiated = false);
+    void hiddenAddContact(ContactWeakPtr newContact);
     std::unordered_map<std::string, ContactWeakPtr>         m_contacts;   // email,
     std::unordered_map<std::string, P2PChatSharedPtr>       m_p2p_chats;
+    std::unordered_map<size_t, P2PChatSharedPtr>            m_p2p_chats_ids;
 };
 
 typedef std::shared_ptr<User> UserSharedPtr;

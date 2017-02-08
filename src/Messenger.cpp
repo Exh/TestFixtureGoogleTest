@@ -17,11 +17,18 @@ User::User(std::string email, const Date& birth_day):Contact(email, birth_day)
 
 void User::addContact(ContactWeakPtr newContact)
 {
+    hiddenAddContact(newContact);
+
+    auto newCon  = newContact.lock();
+    size_t hash = generateHash(getEmail() + newCon->getEmail() + getCurrentTime());
+
+    createChatRoom(newContact, hash, true);
+}
+
+void User::hiddenAddContact(ContactWeakPtr newContact)
+{
     auto newCon  = newContact.lock();
     m_contacts[newCon->getEmail()] = newContact;
-
-    createChatRoom(newContact, generateHash());
- // m_p2p_chats[newCon->getEmail()] = std::make_shared<P2PChat>(newContact, generateHash(), getMyContact());
 }
 
 void User::sendMessege(const std::string &reciever, const std::string &text)
@@ -30,16 +37,20 @@ void User::sendMessege(const std::string &reciever, const std::string &text)
     chat->sendMessege(text);
 }
 
-void User::createChatRoom(ContactWeakPtr newContact, size_t hash)
+void User::createChatRoom(ContactWeakPtr newContact, size_t hash, bool initiated)
 {
-    auto newCon  = newContact.lock();
-    m_p2p_chats[newCon->getEmail()] = std::make_shared<P2PChat>(newContact, hash, getMyContact());
+    auto newCon = newContact.lock();
+    if (newCon) {
+        P2PChatSharedPtr chat = std::make_shared<P2PChat>(newContact, hash, getMyContact(), initiated);
+        m_p2p_chats[newCon->getEmail()] = chat;
+        m_p2p_chats_ids[hash] = chat;
+    }
 }
 
-size_t User::generateHash() const
+size_t User::generateHash(const std::string& s) const
 {
     std::hash<std::string> hash_fn;
-    return hash_fn(getEmail() + getCurrentTime());
+    return hash_fn(s);
 }
 
 
@@ -55,20 +66,19 @@ std::string User::getCurrentTime() const
 
 void User::createP2PChat(uint64_t id, ContactWeakPtr creator)
 {
-    //addContact()
+    hiddenAddContact(creator);
+    createChatRoom(creator, id);
 }
 
 void User::recieveMessege(uint64_t id, const std::string &text)
 {
+    auto iter = m_p2p_chats_ids.find(id);
+    if (iter != m_p2p_chats_ids.end()) {
+        return iter->second->recieveMessege(text);
+    }
 }
 
-std::string User::readChat(uint64_t id) const
-{
-//    auto iter = m_p2p_chats.find(id);
-//    if (iter != m_p2p_chats.end()) {
-        //iter->second->
-    //    }
-}
+
 
 std::string User::readP2PChat(std::string &contact_email)
 {
@@ -79,14 +89,30 @@ std::string User::readP2PChat(std::string &contact_email)
     return "";
 }
 
+P2PChat::P2PChat(ContactWeakPtr collocutor, uint64_t id, ContactWeakPtr creator, bool initiated):
+    IChat(id),
+    m_collocutor(collocutor)
+{
+    if (initiated) {
+        auto col =  m_collocutor.lock();
+        if (col)
+            col->createP2PChat(m_id, creator);
+    }
+}
+
 void P2PChat::sendMessege(const std::string &text)
 {
     auto collocutor = m_collocutor.lock();
-    if (collocutor)
+    if (collocutor) {
         collocutor->recieveMessege(m_id, text);
+        m_text += "You wrote: " + text;
+    }
 }
 
 void P2PChat::recieveMessege(const std::string &text)
 {
-    m_text.append(text.begin(), text.end());
+    auto collocutor = m_collocutor.lock();
+    if (collocutor) {
+        m_text += collocutor->getEmail() + " wrote: " + text;
+    }
 }
