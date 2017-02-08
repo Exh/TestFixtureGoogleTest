@@ -18,17 +18,17 @@
 
 class Date
 {
-    Date(char day, char month, char year):
+    Date(std::string day, std::string month, std::string year):
         day(day), month(month), year(year)
     { }
 
-    char getDay() const { return day; }
-    char getMonth() const { return month; }
-    char getYear() const { return year; }
+    std::string getDay() const { return day; }
+    std::string getMonth() const { return month; }
+    std::string getYear() const { return year; }
 private:
-    char day;
-    char month;
-    char year;
+    std::string day;
+    std::string month;
+    std::string year;
 };
 
 class Contact
@@ -56,7 +56,7 @@ private:
     ContactSharedPtr                                  m_my_contact; //
 };
 
-typedef std::shared_ptr<User> UserCharedPtr;
+typedef std::shared_ptr<User> UserSharedPtr;
 
 
 
