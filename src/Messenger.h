@@ -1,3 +1,4 @@
+
 #ifndef _MESSENGER_H_
 #define _MESSENGER_H_
 
@@ -43,7 +44,9 @@ public:
     Date        getBirthDay() const { return m_birth_day; }
 
     virtual void createP2PChat(uint64_t id, ContactWeakPtr creator) = 0;
+    virtual void createChatRoom(uint64_t id, const std::string& text, const std::vector<ContactWeakPtr>& creator) = 0;
     virtual void recieveMessege(uint64_t id, const std::string& text) = 0;
+    virtual void addContactToChatRoom(uint64_t id, ContactWeakPtr newContact, bool initiate = false) = 0;
     virtual ~Contact() { }
 
 private:
@@ -59,7 +62,7 @@ typedef std::shared_ptr<Contact> ContactSharedPtr;
 class IChat
 {
 public:
-    IChat(uint64_t id):m_id(id) { }
+    IChat(uint64_t id, const std::string& text = ""):m_id(id), m_text(text) { }
     std::string getText() const { return m_text; }
 protected:
     std::string m_text;
@@ -77,9 +80,26 @@ private:
     ContactWeakPtr m_collocutor;
 };
 
-
 typedef std::shared_ptr<P2PChat> P2PChatSharedPtr;
 
+class ChatRoom: public IChat
+{
+public:
+    ChatRoom(uint64_t id, ContactWeakPtr owner,
+             const std::string& text = "",
+             const std::vector<ContactWeakPtr>& collocutors = std::vector<ContactWeakPtr>());
+    void sendMessege(const std::string& text);
+    void recieveMessege(const std::string& text);
+    void systemMessage(const std::string& text);
+    void addContact(ContactWeakPtr collocutor, bool init=false);
+    void removeContact(ContactWeakPtr me);
+private:
+    ContactWeakPtr m_owner;
+    std::vector<ContactWeakPtr> m_collocutors;
+
+};
+
+typedef std::shared_ptr<ChatRoom> ChatRoomSharedPtr;
 
 class User: public Contact
 {
@@ -87,24 +107,30 @@ public:
     User(std::string email, const Date& birth_day);
     ContactWeakPtr getMyContact() { ContactSharedPtr me = shared_from_this(); return me; }
     void addContact(ContactWeakPtr newContact);
+    size_t createChatRoom();
+    void addContactToChat(uint64_t id, ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
     std::string getCurrentTimeStr() const;
     virtual Date getCurrentDate() const;
 
     void createP2PChat(uint64_t id, ContactWeakPtr creator);
+    void createChatRoom(uint64_t id, const std::string& text = "", const std::vector<ContactWeakPtr>& creator = std::vector<ContactWeakPtr>());
     void recieveMessege(uint64_t id, const std::string& text);
 
-    std::string readP2PChat(std::string& contact_email);
+    void addContactToChatRoom(uint64_t id, ContactWeakPtr newContact, bool init = false);
 
+    std::string readP2PChat(std::string& contact_email) const;
+    std::string readChatRoom(size_t) const;
     void clearContacts();
     std::vector<std::string> checkContactsBirthDayToDay() const;
 private:
     size_t generateHash(const std::string& s) const;
-    void createChatRoom(ContactWeakPtr newContact, size_t hash, bool initiated = false);
+    void createChatP2P(ContactWeakPtr newContact, size_t hash, bool initiated = false);
     void hiddenAddContact(ContactWeakPtr newContact);
     std::unordered_map<std::string, ContactWeakPtr>         m_contacts;   // email,
     std::unordered_map<std::string, P2PChatSharedPtr>       m_p2p_chats;
     std::unordered_map<size_t, P2PChatSharedPtr>            m_p2p_chats_ids;
+    std::unordered_map<size_t, ChatRoomSharedPtr>           m_chat_rooms;
 };
 
 typedef std::shared_ptr<User> UserSharedPtr;

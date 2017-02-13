@@ -103,3 +103,17 @@ TEST_F(MessengerTest, IGetMessegeFromTimTodayIsHimBirthDayOpenChatISeeOfferToSen
     std::cout << result;
     EXPECT_EQ(expected, result);
 }
+
+TEST_F(MessengerTest, ICanCreateAChatRoomByAddingContact) {
+    UserSharedPtr me = MessengerTest::getMe();
+    UserSharedPtr tim = MessengerTest::getTim();
+
+    me->addContact(tim->getMyContact());
+    size_t hash_room = me->createChatRoom();
+    me->addContactToChat(hash_room, tim);
+
+    std::cout << "Hash: " << hash_room << std::endl;
+    std::cout << me->readChatRoom(hash_room);
+    std::cout << tim->readChatRoom(hash_room);
+
+}
