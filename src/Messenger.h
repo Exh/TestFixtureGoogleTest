@@ -110,6 +110,8 @@ public:
     size_t createChatRoom();
     void addContactToChat(uint64_t id, ContactWeakPtr newContact);
     void sendMessege(const std::string& reciever, const std::string& text);
+    void sendChatRoomMessege(uint64_t id, const std::string& text);
+
     std::string getCurrentTimeStr() const;
     virtual Date getCurrentDate() const;
 

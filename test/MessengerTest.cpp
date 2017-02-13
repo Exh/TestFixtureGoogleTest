@@ -99,21 +99,42 @@ TEST_F(MessengerTest, IGetMessegeFromTimTodayIsHimBirthDayOpenChatISeeOfferToSen
     me->checkContactsBirthDayToDay();
 
     std::string expected = tim_email + " wrote: wassup dude?\nToday is " + tim_email + " birthday!!!\nDo you wanna send a greeting card?\n";
-    std::string result = me->readP2PChat(tim_email);
-    std::cout << result;
+    std::string result = me->readP2PChat(tim_email);    
     EXPECT_EQ(expected, result);
 }
 
-TEST_F(MessengerTest, ICanCreateAChatRoomByAddingContact) {
+TEST_F(MessengerTest, ICanCreateAChatRoomThenAddingContactThenReadChat) {
     UserSharedPtr me = MessengerTest::getMe();
     UserSharedPtr tim = MessengerTest::getTim();
-
+    std::string tim_email  = MessengerTest::getTimEmail();
     me->addContact(tim->getMyContact());
+
     size_t hash_room = me->createChatRoom();
     me->addContactToChat(hash_room, tim);
 
-    std::cout << "Hash: " << hash_room << std::endl;
-    std::cout << me->readChatRoom(hash_room);
-    std::cout << tim->readChatRoom(hash_room);
+    std::string expected ="You have invited " + tim_email + "\n";
+    std::string result = me->readChatRoom(hash_room);
+    EXPECT_EQ(expected, result);
+}
 
+TEST_F(MessengerTest, ICanCreateAChatRoomThenAddingContactsSendThemMessage) {
+    UserSharedPtr me = MessengerTest::getMe();
+    UserSharedPtr tim = MessengerTest::getTim();
+    UserSharedPtr alex = MessengerTest::getAlex();
+    me->addContact(tim->getMyContact());
+    me->addContact(alex->getMyContact());
+
+    size_t hash_room = me->createChatRoom();
+    me->addContactToChat(hash_room, tim);
+    me->addContactToChat(hash_room, alex);
+    me->sendChatRoomMessege(hash_room, "Hi there");
+
+
+    std::string expected_tim = "my@email.com have invited You\nmy@email.com has invited alex@email.com\nmy@email.com wrote: Hi there";
+    std::string result_tim   = tim->readChatRoom(hash_room);
+    EXPECT_EQ(expected_tim, result_tim);
+
+    std::string expected_alex = "my@email.com have invited You\nmy@email.com wrote: Hi there";
+    std::string result_alex   = alex->readChatRoom(hash_room);
+    EXPECT_EQ(expected_alex, result_alex);
 }

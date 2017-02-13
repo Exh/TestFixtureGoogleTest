@@ -36,6 +36,8 @@ size_t User::createChatRoom()
 
 void User::addContactToChat(uint64_t id, ContactWeakPtr newContact)
 {
+    auto owner = getEmail();
+    auto newEmail = newContact.lock();
     addContactToChatRoom(id, newContact, true);
 }
 
@@ -49,6 +51,15 @@ void User::sendMessege(const std::string &reciever, const std::string &text)
 {
     auto chat = m_p2p_chats[reciever];
     chat->sendMessege(text);
+}
+
+void User::sendChatRoomMessege(uint64_t id, const std::string &text)
+{
+    auto iter = m_chat_rooms.find(id);
+    if (iter != m_chat_rooms.end())
+    {
+        iter->second->sendMessege(text);
+    }
 }
 
 void User::createChatP2P(ContactWeakPtr newContact, size_t hash, bool initiated)
@@ -100,19 +111,25 @@ void User::createChatRoom(uint64_t id, const std::string& text, const std::vecto
 
 void User::recieveMessege(uint64_t id, const std::string &text)
 {
-    auto iter = m_p2p_chats_ids.find(id);
-    if (iter != m_p2p_chats_ids.end()) {
-        return iter->second->recieveMessege(text);
+    {
+        auto iter = m_p2p_chats_ids.find(id);
+        if (iter != m_p2p_chats_ids.end()) {
+            return iter->second->recieveMessege(text);
+        }
+    }
+    {
+        auto iter = m_chat_rooms.find(id);
+        if (iter != m_chat_rooms.end()) {
+            return iter->second->recieveMessege(text);
+        }
     }
 }
 
 void User::addContactToChatRoom(uint64_t id, ContactWeakPtr newContact, bool init)
 {
-    std::cout << "User::addContactToChatRoom hash: " << id << std::endl;
     auto iter = m_chat_rooms.find(id);
     if (iter != m_chat_rooms.end())
     {
-        std::cout << "User::addContactToChatRoom found hash: " << id << std::endl;
         iter->second->addContact(newContact, init);
     }
 }
@@ -214,16 +231,36 @@ ChatRoom::ChatRoom(uint64_t id,
 
 }
 
-void ChatRoom::addContact(ContactWeakPtr new_collocutor, bool init)
+void ChatRoom::sendMessege(const std::string &text)
 {
-    std::cout << "ChatRoom:addContact " << m_text << std::endl;
+    for (auto& iter : m_collocutors)
+    {
+        auto owner = m_owner.lock();
+        auto col = iter.lock();
+        std::string stext = owner->getEmail() + " wrote: " + text;
+        col->recieveMessege(m_id, stext);
+        m_text += "You wrote: " + text;
+    }
+}
 
+void ChatRoom::recieveMessege(const std::string &text)
+{
+    m_text += text;
+}
+
+void ChatRoom::systemMessage(const std::string &text)
+{
+
+}
+
+void ChatRoom::addContact(ContactWeakPtr new_collocutor, bool init)
+{    
     auto col = new_collocutor.lock();
     if (col)
     {
         if (init) {
             auto owner = m_owner.lock();
-            assert(owner != nullptr);
+            assert(owner != nullptr);         
 
             for (auto collocutor: m_collocutors)
             {
@@ -235,16 +272,13 @@ void ChatRoom::addContact(ContactWeakPtr new_collocutor, bool init)
                                      owner->getEmail() + " has invited " +
                                      col->getEmail() + "\n");
             }
-            std::string text = m_text;
-            text += owner->getEmail() + " have invited You\n";
+            std::string text = owner->getEmail() + " have invited You\n";
             col->createChatRoom(m_id, text, m_collocutors);
 
             m_text += "You have invited " + col->getEmail() + "\n";
         }
         m_collocutors.push_back(new_collocutor);
-    }
-
-    std::cout << "ChatRoom:addContact text " << m_text << std::endl;
+    }    
 }
 
 
